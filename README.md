@@ -7,6 +7,8 @@ I love rsync but I always felt it was either too chatty when transferring lots o
 
 rsyncy is a fun experiment to fix this without having to bother the rsync developers.
 
+![rsyncy](readme/demo.gif)
+
 ## Installation
 
 ```
