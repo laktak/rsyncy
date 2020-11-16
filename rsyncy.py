@@ -11,20 +11,9 @@ import types
 from threading import Thread
 from datetime import datetime
 
-_re_trans = re.compile(r"[^0-9]")
 _re_chk = re.compile(r"(..)-.+=(\d+)/(\d+)")
 
 # start inline from laktakpy
-
-
-def format_bytes(size, precision=2):
-    power = 2 ** 10  # 1024
-    n = 0
-    power_labels = {0: "bytes", 1: "KB", 2: "MB", 3: "GB", 4: "TB"}
-    while size > power:
-        size /= power
-        n += 1
-    return f"{size:0.{precision}f} {power_labels[n]}"
 
 
 class CLI:
@@ -105,12 +94,11 @@ class Rsyncy:
         # sample: 6,672,528  96%    1.04MB/s    0:00:06 (xfr#1, to-chk=7/12)
         data = [s for s in line.split(" ") if s]
         if len(data) >= 4:
-            trans, percent, self.speed, timing, *_ = data
+            self.trans, percent, self.speed, timing, *_ = data
             try:
-                self.trans = int(_re_trans.sub("", trans))
                 self.percent = int(percent.strip("%")) / 100
-            except e as Exception:
-                print("can't parse", e)
+            except Exception as e:
+                print("ERROR - can't parse#1:", line, data, e, sep="\n> ")
 
         # timing is remaining with 4 args, or elapsed with 6
         if len(data) == 6:
@@ -126,12 +114,12 @@ class Rsyncy:
                     todo = int(m[2])
                     total = int(m[3])
                     done = total - todo
-                    self.chk = f"{(done/total):2.0%} ({total})"
+                    self.chk = f"{(done/total if total else 0):2.0%} ({total})"
                 else:
                     self.chk = ""
 
-            except e as Exception:
-                print("can't parse", e)
+            except Exception as e:
+                print("ERROR - can't parse#2:", line, data, e, sep="\n> ")
 
     def draw_stat(self):
         cols = CLI.get_size().columns
@@ -146,7 +134,7 @@ class Rsyncy:
         parts = [
             o
             for o in [
-                f"{format_bytes(self.trans):>11}",
+                f"{self.trans:>11}",
                 f"{self.speed:>14}",
                 f"{str(elapsed).split('.')[0]}",
                 f"{self.xfr}",
