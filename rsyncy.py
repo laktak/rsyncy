@@ -184,7 +184,7 @@ class Rsyncy:
         )
 
     def parse_line(self, line, is_stat):
-        line = line.strip(" ")
+        line = line.decode().strip(" ")
         if not line:
             return
 
@@ -202,22 +202,22 @@ class Rsyncy:
             self.draw_stat()
 
     def read(self, fd):
-        line = ""
+        line = b""
         while True:
             stat = select.select([fd], [], [], 0.2)
             if fd in stat[0]:
-                ch = os.read(fd, 1).decode()
-                if ch == "":
+                ch = os.read(fd, 1)
+                if ch == b"":
                     # exit
                     self.parse_line(line, False)
                     break
 
-                elif ch == "\r":
+                elif ch == b"\r":
                     self.parse_line(line, True)
-                    line = "\r"
-                elif ch == "\n":
+                    line = b"\r"
+                elif ch == b"\n":
                     self.parse_line(line, False)
-                    line = ""
+                    line = b""
                 else:
                     line += ch
 
@@ -226,7 +226,7 @@ class Rsyncy:
                 if line:
                     # assume this is a status update
                     self.parse_line(line, True)
-                    line = ""
+                    line = b""
                 else:
                     # waiting for input
                     self.draw_stat()
