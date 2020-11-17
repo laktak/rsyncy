@@ -1,13 +1,19 @@
 
 # rsyncy
 
-A status bar for [rsync](https://github.com/WayneD/rsync).
+A status/progress bar for [rsync](https://github.com/WayneD/rsync).
 
 I love rsync but I always felt it was either too chatty when transferring lots of small files or did not show enough information for the large files in between.
 
 rsyncy is a fun experiment to fix this without having to bother the rsync developers.
 
-![rsyncy](https://raw.githubusercontent.com/laktak/rsyncy/master/readme/demo.gif)
+You go from this:
+
+![gif of rsync -avh --info=progress2 a/ b](https://raw.githubusercontent.com/laktak/rsyncy/readme/readme/demo-p.gif "rsync -avh --info=progress2 a/ b")
+
+to this:
+
+![gif of rsyncy -a a/ b](https://raw.githubusercontent.com/laktak/rsyncy/readme/readme/demo-y.gif "rsyncy -a a/ b")
 
 ## Status Bar
 
