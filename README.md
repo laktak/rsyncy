@@ -58,7 +58,7 @@ $ rsyncy -a FROM/ TO
 Alternatively you can pipe the output from rsync to rsyncy (in which case you need to specify `--info=progress2 -hv` yourself).
 
 ```
-$ rsyncy -a --info=progress2 -hv FROM/ TO | rsyncy
+$ rsync -a --info=progress2 -hv FROM/ TO | rsyncy
 ```
 
 At the moment `rsyncy` itself has no options and only supports my preferred way of viewing rsync progress.
