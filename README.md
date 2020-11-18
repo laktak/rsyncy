@@ -18,7 +18,7 @@ to this:
 ## Status Bar
 
 ```
-[########################::::::]  80% |      19.17G |      86.65MB/s | 0:03:18 | #306 | chk 46% (2410)\
+[########################::::::]  80% |      19.17G |      86.65MB/s | 0:03:18 | #306 | scan 46% (2410)\
 ```
 
 The status bar shows the following information:
@@ -30,7 +30,7 @@ Bytes transferred | `19.17G`
 Transfer speed | `86.65MB/s`
 Elapsed time since starting rsync | `0:03:18`
 Number of files transferred | `#306`
-Files to check<br>- percentage completed<br>- (number of files)<br>- spinner | `chk 46% (2410)\`
+Files to scan/check<br>- percentage completed<br>- (number of files)<br>- spinner | `scan 46% (2410)\`
 
 The spinner indicates that rsync is still checking if files need to be updated. Until this process completes the progress bar may decrease as new files are found.
 

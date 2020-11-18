@@ -6,11 +6,11 @@ with open(os.path.join(os.path.dirname(__file__), "README.md"), encoding="utf-8"
 
 setup(
     name="rsyncy",
-    version="0.0.3",
+    version="0.0.4",
     url="https://github.com/laktak/rsyncy",
     author="Christian Zangl",
     author_email="laktak@cdak.net",
-    description="A status bar for rsync.",
+    description="A status/progress bar for rsync.",
     long_description=readme,
     long_description_content_type="text/markdown",
     packages=[],

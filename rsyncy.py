@@ -138,7 +138,7 @@ class Rsyncy:
                 f"{self.speed:>14}",
                 f"{str(elapsed).split('.')[0]}",
                 f"{self.xfr}",
-                f"chk {self.chk}\xff",
+                f"scan {self.chk}\xff",
             ]
             if o
         ]
