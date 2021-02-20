@@ -43,6 +43,8 @@ pip3 install --user rsyncy
 pipx install rsyncy
 ```
 
+On macOS you also need to `brew install rsync` because it ships with an rsync from 2006.
+
 ## Usage
 
 `rsyncy` is a wrapper around `rsync`.
