@@ -26,6 +26,12 @@ Files to scan/check<br>- percentage completed<br>- (number of files)<br>- spinne
 
 The spinner indicates that rsync is still checking if files need to be updated. Until this process completes the progress bar may decrease as new files are found.
 
+## Limitations
+
+Interactive ssh questions (host key, password) are happening outside of the piped content. That means that rsyncy does not know that ssh is waiting for input and will draw the status bar over it. If you have an idea on how to handle this case please let me know.
+
+Workaround: connect once to your server via ssh to add it to the known_hosts file.
+
 ## Installation
 
 ```
