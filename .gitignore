@@ -2,3 +2,5 @@ dist/
 *.egg-info/
 *.pyc
 _*
+*.sublime-project
+*.sublime-workspace

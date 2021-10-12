@@ -9,7 +9,7 @@ import sys
 import time
 import types
 from threading import Thread
-from datetime import datetime
+from datetime import datetime, timedelta
 
 _re_chk = re.compile(r"(..)-.+=(\d+)/(\d+)")
 
@@ -72,6 +72,8 @@ class CLI:
 
 # end inline from laktakpy
 
+MAX_DELTA = timedelta(days=999999999)
+
 
 class Rsyncy:
     def __init__(self, rstyle):
@@ -84,6 +86,7 @@ class Rsyncy:
         self.spinner = rstyle["spinner"]
         self.trans = 0
         self.percent = 0
+        self.eta = MAX_DELTA
         self.speed = ""
         self.xfr = ""
         self.chk = ""
@@ -96,7 +99,10 @@ class Rsyncy:
         if len(data) >= 4:
             self.trans, percent, self.speed, timing, *_ = data
             try:
-                self.percent = int(percent.strip("%")) / 100
+                complete = int(percent.strip("%"))
+                self.percent = int(complete) / 100
+                elapsed = (datetime.now() - self.start).total_seconds()
+                self.eta = timedelta(seconds=(elapsed * (100 / complete) - elapsed) if complete != 0 else MAX_DELTA.total_seconds())
             except Exception as e:
                 print("ERROR - can't parse#1:", line, data, e, sep="\n> ")
 
@@ -121,6 +127,9 @@ class Rsyncy:
             except Exception as e:
                 print("ERROR - can't parse#2:", line, data, e, sep="\n> ")
 
+    def _eta(self) -> str:
+        return f"ETA: {str(self.eta).split('.')[0] if self.eta != MAX_DELTA else '???'}"
+
     def draw_stat(self):
         cols = CLI.get_size().columns
         elapsed = datetime.now() - self.start
@@ -137,6 +146,7 @@ class Rsyncy:
                 f"{self.trans:>11}",
                 f"{self.speed:>14}",
                 f"{str(elapsed).split('.')[0]}",
+                self._eta(),
                 f"{self.xfr}",
                 f"scan {self.chk}\xff",
             ]
