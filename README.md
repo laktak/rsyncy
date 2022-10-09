@@ -41,6 +41,8 @@ pip3 install --user rsyncy
 pipx install rsyncy
 ```
 
+Minimum Python version is 3.6.
+
 On macOS you also need to `brew install rsync` because it ships with an rsync from 2006.
 
 ## Usage
