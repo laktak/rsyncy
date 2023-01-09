@@ -65,6 +65,26 @@ $ rsync -a --info=progress2 -hv FROM/ TO | rsyncy
 
 At the moment `rsyncy` itself has no options and only supports my preferred way of viewing rsync progress.
 
+## lf support
+
+`rsyncy-stat` can be used to view only the status output on [lf](https://github.com/gokcehan/lf) (or similar terminal file managers).
+
+Example:
+
+```
+cmd paste-rsync %{{
+    opt="$@"
+    set -- $(cat ~/.local/share/lf/files)
+    mode="$1"; shift
+    case "$mode" in
+        copy) rsyncy-stat -rltphv $opt "$@" . ;;
+        move) mv -- "$@" .; lf -remote "send clear" ;;
+    esac
+}}
+```
+
+This shows the copy progress in the `>` line while rsync is running.
+
 ## Development
 
 First record an rsync transfer with [pipevcr](https://github.com/laktak/pipevcr), then replay it to rsyncy when debugging.

@@ -89,6 +89,7 @@ class Rsyncy:
         self.chk = ""
         self.chk_finished = False
         self.start = datetime.now()
+        self.stat_mode = False
 
     def parse_stat(self, line):
         # sample: 6,672,528  96%    1.04MB/s    0:00:06 (xfr#1, to-chk=7/12)
@@ -172,16 +173,19 @@ class Rsyncy:
         # render with delimiter
         status = delim.join(parts).replace("\xff", f"{self.cspin}{spin}{self.ctext}")
 
-        # write and position cursor on bar
-        CLI.write(
-            "\r",
-            self.bg,
-            status,
-            CLI.esc.clear_line(),
-            "\r",
-            f"{CLI.esc.right * pc}",
-            CLI.style.reset,
-        )
+        if not self.stat_mode:
+            # write and position cursor on bar
+            CLI.write(
+                "\r",
+                self.bg,
+                status,
+                CLI.esc.clear_line(),
+                "\r",
+                f"{CLI.esc.right * pc}",
+                CLI.style.reset,
+            )
+        else:
+            CLI.write("\r\n", self.bg, status, CLI.style.reset)
 
     def parse_line(self, line, is_stat):
         line = line.decode().strip(" ")
@@ -197,7 +201,7 @@ class Rsyncy:
         elif line[-1] == "/":
             # skip directories
             pass
-        else:
+        elif not self.stat_mode:
             CLI.printline(line)
             self.draw_stat()
 
@@ -269,6 +273,7 @@ if __name__ == "__main__":
             "spinner": ["-", "\\", "|", "/"],
         }
     rsyncy = Rsyncy(rstyle)
+    rsyncy.stat_mode = os.path.basename(sys.argv[0]) == "rsyncy-stat"
 
     try:
 
