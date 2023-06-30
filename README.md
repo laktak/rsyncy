@@ -63,7 +63,9 @@ Alternatively you can pipe the output from rsync to rsyncy (in which case you ne
 $ rsync -a --info=progress2 -hv FROM/ TO | rsyncy
 ```
 
-At the moment `rsyncy` itself has no options and only supports my preferred way of viewing rsync progress.
+At the moment `rsyncy` itself has only one option, you can turn off colors via the `NO_COLOR=1` environment variable.
+
+
 
 ## lf support
 

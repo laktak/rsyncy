@@ -17,6 +17,8 @@ _re_chk = re.compile(r"(..)-.+=(\d+)/(\d+)")
 
 
 class CLI:
+    NO_COLOR = os.environ.get("NO_COLOR", "")
+
     class style:
         reset = "\033[0m"
         bold = "\033[01m"
@@ -29,6 +31,8 @@ class CLI:
             return "\033[" + str(opt) + "K"
 
     def get_col_bits():
+        if CLI.NO_COLOR:
+            return 1
         c, t = os.environ.get("COLORTERM", ""), os.environ.get("TERM", "")
         if c in ["truecolor", "24bit"]:
             return 24
@@ -41,18 +45,30 @@ class CLI:
     def fg4(col):
         # black=0,red=1,green=2,orange=3,blue=4,purple=5,cyan=6,lightgrey=7
         # darkgrey=8,lightred=9,lightgreen=10,yellow=11,lightblue=12,pink=13,lightcyan=14
-        return f"\033[{(30+col) if col<8 else (90-8+col)}m"
+        if CLI.NO_COLOR:
+            return ""
+        else:
+            return f"\033[{(30+col) if col<8 else (90-8+col)}m"
 
     def bg4(col):
         # black=0,red=1,green=2,orange=3,blue=4,purple=5,cyan=6,lightgrey=7
-        return f"\033[{40+col}m"
+        if CLI.NO_COLOR:
+            return ""
+        else:
+            return f"\033[{40+col}m"
 
     # 8bit xterm colors
     def fg8(col):
-        return f"\033[38;5;{col}m"
+        if CLI.NO_COLOR:
+            return ""
+        else:
+            return f"\033[38;5;{col}m"
 
     def bg8(col):
-        return f"\033[48;5;{col}m"
+        if CLI.NO_COLOR:
+            return ""
+        else:
+            return f"\033[48;5;{col}m"
 
     def write(*text):
         for t in text:
