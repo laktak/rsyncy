@@ -242,16 +242,16 @@ class Rsyncy:
 def run_rsync(args, write_pipe, rc):
     # prefix rsync and add args required for progress
     args = ["rsync"] + args + ["--info=progress2", "--no-v", "-hv"]
+    p = None
     try:
         p = subprocess.Popen(args, stdout=write_pipe)
         p.wait()
     finally:
         os.close(write_pipe)
-        rc.put(p.returncode)
+        rc.put(p.returncode if p else 1)
 
 
 if __name__ == "__main__":
-
     if CLI.get_col_bits() >= 8:
         rstyle = {
             "bg": CLI.bg8(238),
@@ -276,7 +276,6 @@ if __name__ == "__main__":
     rsyncy.stat_mode = os.path.basename(sys.argv[0]) == "rsyncy-stat"
 
     try:
-
         if len(sys.argv) == 1:
             if sys.stdin.isatty():
                 print("rsyncy is an rsync wrapper with a progress bar.")
@@ -293,7 +292,8 @@ if __name__ == "__main__":
             t.start()
             rsyncy.read(read_pipe)
             t.join()
+
             sys.exit(rc.get())
 
     except KeyboardInterrupt:
-        pass
+        sys.exit(1)
