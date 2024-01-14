@@ -34,14 +34,12 @@ Workaround: connect once to your server via ssh to add it to the known_hosts fil
 
 ## Installation
 
-```
-pip3 install --user rsyncy
+Download: You can download a release directly from [github releases](https://github.com/laktak/rsyncy/releases).
 
-# or if you have pipx
-pipx install rsyncy
-```
+If you OS/platform is not yet supported you can also use either [pipx](https://pipx.pypa.io/latest/installation/) or pip:
 
-Minimum Python version is 3.6.
+- `pipx install rsyncy`
+- `pip install --user rsyncy`
 
 On macOS you also need to `brew install rsync` because it ships with an rsync from 2006.
 
@@ -65,7 +63,9 @@ $ rsync -a --info=progress2 -hv FROM/ TO | rsyncy
 
 At the moment `rsyncy` itself has only one option, you can turn off colors via the `NO_COLOR=1` environment variable.
 
+## Known Issues when using ssh behind rsync
 
+ssh uses direct TTY access to make sure that the password is indeed issued by an interactive keyboard user. rsyncy is unable to detect the password prompt and will overwrite it with the status line. You can still enter your password and press enter to continue.
 
 ## lf support
 
@@ -86,6 +86,8 @@ cmd paste-rsync %{{
 ```
 
 This shows the copy progress in the `>` line while rsync is running.
+
+If you have downloaded the binary version you can create it with `ln -s rsyncy rsyncy-stat`.
 
 ## Development
 
