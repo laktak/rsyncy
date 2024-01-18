@@ -7,7 +7,6 @@ A status/progress bar for [rsync](https://github.com/WayneD/rsync).
 
 
 - [Status Bar](#status-bar)
-- [Limitations](#limitations)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Known Issues when using ssh behind rsync](#known-issues-when-using-ssh-behind-rsync)
@@ -33,13 +32,6 @@ Number of files transferred | `#306`
 Files to scan/check<br>- percentage completed<br>- (number of files)<br>- spinner | `scan 46% (2410)\`
 
 The spinner indicates that rsync is still checking if files need to be updated. Until this process completes the progress bar may decrease as new files are found.
-
-
-## Limitations
-
-Interactive ssh questions (host key, password) are happening outside of the piped content. That means that rsyncy does not know that ssh is waiting for input and will draw the status bar over it. If you have an idea on how to handle this case please let me know.
-
-Workaround: connect once to your server via ssh to add it to the known_hosts file.
 
 
 ## Installation
@@ -71,9 +63,11 @@ $ rsync -a --info=progress2 -hv FROM/ TO | rsyncy
 At the moment `rsyncy` itself has only one option, you can turn off colors via the `NO_COLOR=1` environment variable.
 
 
-## Known Issues when using ssh behind rsync
+## Known Issue when using ssh behind rsync
 
-ssh uses direct TTY access to make sure that the password is indeed issued by an interactive keyboard user. rsyncy is unable to detect the password prompt and will overwrite it with the status line. You can still enter your password and press enter to continue.
+ssh uses direct TTY access to make sure that the input is indeed issued by an interactive keyboard user (for host keys and passwords). That means that rsyncy does not know that ssh is waiting for input and will draw the status bar over it. You can still enter your password and press enter to continue.
+
+Workaround: connect once to your server via ssh to add it to the known_hosts file.
 
 
 ## lf support
