@@ -3,9 +3,17 @@
 
 A status/progress bar for [rsync](https://github.com/WayneD/rsync).
 
-I love rsync but I always felt it was either too chatty when transferring lots of small files or did not show enough information for the large files in between. rsyncy is a wrapper to change this without having to modify rsync.
-
 ![gif of rsyncy -a a/ b](https://raw.githubusercontent.com/laktak/rsyncy/readme/readme/demo-y.gif "rsyncy -a a/ b")
+
+
+- [Status Bar](#status-bar)
+- [Limitations](#limitations)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Known Issues when using ssh behind rsync](#known-issues-when-using-ssh-behind-rsync)
+- [lf support](#lf-support)
+- [Development](#development)
+
 
 ## Status Bar
 
@@ -26,22 +34,21 @@ Files to scan/check<br>- percentage completed<br>- (number of files)<br>- spinne
 
 The spinner indicates that rsync is still checking if files need to be updated. Until this process completes the progress bar may decrease as new files are found.
 
+
 ## Limitations
 
 Interactive ssh questions (host key, password) are happening outside of the piped content. That means that rsyncy does not know that ssh is waiting for input and will draw the status bar over it. If you have an idea on how to handle this case please let me know.
 
 Workaround: connect once to your server via ssh to add it to the known_hosts file.
 
+
 ## Installation
 
-Download: You can download a release directly from [github releases](https://github.com/laktak/rsyncy/releases).
+- Linux packages for [Arch, Debian, Fedora, Suse and Ubuntu via the Open Build Service](https://software.opensuse.org//download.html?project=home%3Alaktak&package=rsyncy)
+- macOS and Linux [Homebrew](https://formulae.brew.sh/formula/rsyncy): `brew install rsyncy`
+- Download for [Linux or macOS](https://github.com/laktak/rsyncy/releases).
+- Get it with [pipx](https://pipx.pypa.io/latest/installation/): `pipx install rsyncy`
 
-If you OS/platform is not yet supported you can also use either [pipx](https://pipx.pypa.io/latest/installation/) or pip:
-
-- `pipx install rsyncy`
-- `pip install --user rsyncy`
-
-On macOS you also need to `brew install rsync` because it ships with an rsync from 2006.
 
 ## Usage
 
@@ -63,9 +70,11 @@ $ rsync -a --info=progress2 -hv FROM/ TO | rsyncy
 
 At the moment `rsyncy` itself has only one option, you can turn off colors via the `NO_COLOR=1` environment variable.
 
+
 ## Known Issues when using ssh behind rsync
 
 ssh uses direct TTY access to make sure that the password is indeed issued by an interactive keyboard user. rsyncy is unable to detect the password prompt and will overwrite it with the status line. You can still enter your password and press enter to continue.
+
 
 ## lf support
 
@@ -88,6 +97,7 @@ cmd paste-rsync %{{
 This shows the copy progress in the `>` line while rsync is running.
 
 If you have downloaded the binary version you can create it with `ln -s rsyncy rsyncy-stat`.
+
 
 ## Development
 
