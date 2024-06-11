@@ -36,7 +36,6 @@ The spinner indicates that rsync is still checking if files need to be updated. 
 
 ## Installation
 
-- Linux packages for [Arch, Debian, Fedora, Suse and Ubuntu via the Open Build Service](https://software.opensuse.org//download.html?project=home%3Alaktak&package=rsyncy)
 - macOS and Linux [Homebrew](https://formulae.brew.sh/formula/rsyncy): `brew install rsyncy`
 - Download for [Linux or macOS](https://github.com/laktak/rsyncy/releases).
 - Get it with [pipx](https://pipx.pypa.io/latest/installation/): `pipx install rsyncy`
