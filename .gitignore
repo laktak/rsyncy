@@ -1,6 +1,5 @@
+_*
 dist/
+build/
 *.egg-info/
 *.pyc
-_*
-build
-rsyncy.spec
