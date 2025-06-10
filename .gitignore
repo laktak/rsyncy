@@ -1,5 +1,2 @@
 _*
-dist/
-build/
-*.egg-info/
-*.pyc
+/rsyncy
