@@ -1,5 +1,5 @@
 
-name: lint
+name: lint-py
 
 on: [push, pull_request]
 
