@@ -1,0 +1,13 @@
+#!/bin/bash
+set -eE -o pipefail
+
+script_dir=$(dirname "$(realpath "$0")")
+cd $script_dir/..
+
+res="$(gofmt -l . 2>&1)"
+
+if [ -n "$res" ]; then
+  echo "gofmt check failed:"
+  echo "${res}"
+  exit 1
+fi

@@ -21,9 +21,10 @@ import (
 )
 
 const (
-	escMoveRight = "\033[C"
+	cursorRight = "\033[C"
 )
 
+var appVersion = "vdev"
 var reChk = regexp.MustCompile(`(..)-.+=(\d+)/(\d+)`)
 
 type Rstyle struct {
@@ -175,7 +176,7 @@ func (r *Rsyncy) drawStat() {
 
 	if !r.statusOnly {
 		// write and position cursor on bar
-		lterm.Write("\r", r.style.bg, status, lterm.ClearLine(0), "\r", strings.Repeat(escMoveRight, pc), lterm.Reset)
+		lterm.Write("\r", r.style.bg, status, lterm.ClearLine(0), "\r", strings.Repeat(cursorRight, pc), lterm.Reset)
 	} else {
 		lterm.Write("\r\n", r.style.bg, status, lterm.Reset)
 	}
@@ -330,6 +331,10 @@ func main() {
 	if len(args) == 0 {
 		stdinFd := int(os.Stdin.Fd())
 		if term.IsTerminal(stdinFd) {
+			fmt.Println("github.com/laktak/rsyncy")
+			fmt.Println("Christian Zangl <laktak@cdak.net>")
+			fmt.Println(appVersion)
+			fmt.Println()
 			fmt.Println("rsyncy is an rsync wrapper with a progress bar.")
 			fmt.Println("Please specify your rsync options as you normally would but use rsyncy instead of rsync.")
 		} else {
