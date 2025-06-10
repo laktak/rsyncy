@@ -36,9 +36,44 @@ The spinner indicates that rsync is still checking if files need to be updated. 
 
 ## Installation
 
-- macOS and Linux [Homebrew](https://formulae.brew.sh/formula/rsyncy): `brew install rsyncy`
-- Download for [Linux or macOS](https://github.com/laktak/rsyncy/releases).
-- Get it with [pipx](https://pipx.pypa.io/latest/installation/): `pipx install rsyncy`
+### Download Binaries
+
+You can download the official rsyncy binaries for different OS/Platforms from the GitHub releases page. After downloading place it in your `PATH`.
+
+- [github.com/laktak/rsyncy/releases](https://github.com/laktak/rsyncy/releases)
+
+### Install via Homebrew (macOS and Linux)
+
+For macOS and Linux it can also be installed via [Homebrew](https://formulae.brew.sh/formula/rsyncy):
+
+```shell
+$ brew install rsyncy
+```
+
+### Install via Go
+
+```shell
+$ go install github.com/laktak/rsyncy/v2@latest
+```
+
+### Install via Pipx
+
+```shell
+$ pipx install rsyncy
+```
+
+- installs the Python version
+- requires [pipx](https://pipx.pypa.io/latest/installation/)
+
+### Build from Source
+
+```shell
+$ git clone https://github.com/laktak/rsyncy
+$ rsyncy/scripts/build
+
+# binary can be found here
+$ ls -l rsyncy/rsyncy
+`
 
 
 ## Usage
@@ -95,3 +130,4 @@ If you have downloaded the binary version you can create it with `ln -s rsyncy r
 ## Development
 
 First record an rsync transfer with [pipevcr](https://github.com/laktak/pipevcr), then replay it to rsyncy when debugging.
+
