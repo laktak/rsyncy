@@ -108,35 +108,38 @@ class Rsyncy:
         self.stat_mode = False
 
     def parse_stat(self, line):
-        # sample: 6,672,528  96%    1.04MB/s    0:00:06 (xfr#1, to-chk=7/12)
+        # sample: 3.93M   5%  128.19kB/s    0:00:29 (xfr#208, ir-chk=2587/2821)
+        # sample: 130.95M  29%  207.03kB/s    0:10:17 (xfr#4000, to-chk=1000/5055)
         data = [s for s in line.split(" ") if s]
-        if len(data) >= 4:
+        if len(data) >= 4 and data[1].endswith("%"):
             self.trans, percent, self.speed, timing, *_ = data
             try:
                 self.percent = int(percent.strip("%")) / 100
             except Exception as e:
                 print("ERROR - can't parse#1:", line, data, e, sep="\n> ")
+            # ignore data[3] (time)
 
-        # timing is remaining with 4 args, or elapsed with 6
-        if len(data) == 6:
-            try:
-                xfr, chk = data[4:6]
-                self.xfr = xfr.strip(",").split("#")[1]
-                if self.xfr:
-                    self.xfr = "#" + self.xfr
+            if len(data) == 6:
+                try:
+                    xfr, chk = data[4:6]
+                    self.xfr = xfr.strip(",").split("#")[1]
+                    if self.xfr:
+                        self.xfr = "#" + self.xfr
 
-                m = _re_chk.match(chk)
-                if m:
-                    self.chk_finished = m[1] == "to"
-                    todo = int(m[2])
-                    total = int(m[3])
-                    done = total - todo
-                    self.chk = f"{(done/total if total else 0):2.0%} ({total})"
-                else:
-                    self.chk = ""
+                    m = _re_chk.match(chk)
+                    if m:
+                        self.chk_finished = m[1] == "to"
+                        todo = int(m[2])
+                        total = int(m[3])
+                        done = total - todo
+                        self.chk = f"{(done/total if total else 0):2.0%} ({total})"
+                    else:
+                        self.chk = ""
 
-            except Exception as e:
-                print("ERROR - can't parse#2:", line, data, e, sep="\n> ")
+                except Exception as e:
+                    print("ERROR - can't parse#2:", line, data, e, sep="\n> ")
+            return True
+        return False
 
     def draw_stat(self):
         cols = CLI.get_size().columns
@@ -212,7 +215,8 @@ class Rsyncy:
         line = line.replace("\r", "")
 
         if is_stat:
-            self.parse_stat(line)
+            if not self.parse_stat(line) and not self.stat_mode:
+                CLI.printline(line)
             self.draw_stat()
         elif line[-1] == "/":
             # skip directories

@@ -55,44 +55,48 @@ func NewRsyncy(rstyle Rstyle) *Rsyncy {
 	}
 }
 
-func (r *Rsyncy) parseRsyncStat(line string) {
-	// sample: 6,672,528  96%    1.04MB/s    0:00:06 (xfr#1, to-chk=7/12)
+func (r *Rsyncy) parseRsyncStat(line string) bool {
+	// sample: 3.93M   5%  128.19kB/s    0:00:29 (xfr#208, ir-chk=2587/2821)
+	// sample: 130.95M  29%  207.03kB/s    0:10:17 (xfr#4000, to-chk=1000/5055)
 	data := strings.Fields(line)
 
-	if len(data) >= 4 {
+	if len(data) >= 4 &&
+		strings.HasSuffix(data[1], "%") {
 		r.trans = data[0]
 		if p, err := strconv.ParseFloat(strings.TrimSuffix(data[1], "%"), 64); err == nil {
 			r.percent = p / 100.0
 		} else {
 			// skip
-			// log.Printf("ERROR - can't parse#1: '%s' in %s\n", data[1], line)
+			log.Printf("ERROR - can't parse#1: '%s' in %s\n", data[1], line)
 		}
 		r.speed = data[2]
-		// ignore the time part
-	}
+		// ignore data[3] (time)
 
-	if len(data) == 6 {
-		xfr := strings.Split(strings.TrimSuffix(data[4], ","), "#")
-		if len(xfr) == 2 {
-			r.xfr = "#" + xfr[1]
-		}
+		if len(data) == 6 {
+			xfr := strings.Split(strings.TrimSuffix(data[4], ","), "#")
+			if len(xfr) == 2 {
+				r.xfr = "#" + xfr[1]
+			}
 
-		match := reChk.FindStringSubmatch(data[5])
-		if len(match) == 4 {
-			r.chkFinished = match[1] == "to"
-			todo, errTodo := strconv.Atoi(match[2])
-			total, errTotal := strconv.Atoi(match[3])
-			if errTodo == nil && errTotal == nil && total > 0 {
-				done := total - todo
-				chkPercent := float64(done) * 100.0 / float64(total)
-				r.chk = fmt.Sprintf("%2.0f%% (%d)", chkPercent, total)
+			match := reChk.FindStringSubmatch(data[5])
+			if len(match) == 4 {
+				r.chkFinished = match[1] == "to"
+				todo, errTodo := strconv.Atoi(match[2])
+				total, errTotal := strconv.Atoi(match[3])
+				if errTodo == nil && errTotal == nil && total > 0 {
+					done := total - todo
+					chkPercent := float64(done) * 100.0 / float64(total)
+					r.chk = fmt.Sprintf("%2.0f%% (%d)", chkPercent, total)
+				} else {
+					r.chk = ""
+				}
 			} else {
 				r.chk = ""
 			}
-		} else {
-			r.chk = ""
 		}
+		return true
 	}
+	return false
 }
 
 func min(a, b int) int {
@@ -187,7 +191,9 @@ func (r *Rsyncy) parseLine(lineBytes []byte, isStatHint bool) {
 	line = strings.TrimPrefix(line, "\r")
 
 	if isStat {
-		r.parseRsyncStat(line)
+		if !r.parseRsyncStat(line) && !r.statusOnly {
+			lterm.Printline("\r", line)
+		}
 		r.drawStat()
 	} else if strings.HasSuffix(line, "/") {
 		// skip directories
