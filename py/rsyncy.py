@@ -102,8 +102,8 @@ class Rsyncy:
         self.percent = 0
         self.speed = ""
         self.xfr = ""
-        self.chk = ""
-        self.chk_finished = False
+        self.files = ""
+        self.scan_done = False
         self.start = datetime.now()
         self.stat_mode = False
 
@@ -128,13 +128,20 @@ class Rsyncy:
 
                     m = _re_chk.match(chk)
                     if m:
-                        self.chk_finished = m[1] == "to"
+                        self.scan_done = m[1] == "to"
                         todo = int(m[2])
                         total = int(m[3])
                         done = total - todo
-                        self.chk = f"{(done/total if total else 0):2.0%} ({total})"
+                        if self.scan_done:
+                            self.files = (
+                                f"{(done/total if total else 0):.0%} of {total} files"
+                            )
+                        else:
+                            self.files = (
+                                f"{(done/total if total else 0):.0%} ({total}..) "
+                            )
                     else:
-                        self.chk = ""
+                        self.files = ""
 
                 except Exception as e:
                     print("ERROR - can't parse#2:", line, data, e, sep="\n> ")
@@ -144,7 +151,7 @@ class Rsyncy:
     def draw_stat(self):
         cols = CLI.get_size().columns
         elapsed = datetime.now() - self.start
-        if self.chk_finished:
+        if self.scan_done:
             spin = ""
         else:
             spin = self.spinner[round(elapsed.total_seconds()) % len(self.spinner)]
@@ -158,7 +165,7 @@ class Rsyncy:
                 f"{self.speed:>14}",
                 f"{str(elapsed).split('.')[0]}",
                 f"{self.xfr}",
-                f"scan {self.chk}\xff",
+                f"{self.files}\xff",
             ]
             if o
         ]
@@ -298,9 +305,12 @@ if __name__ == "__main__":
     try:
         if len(sys.argv) == 1:
             if sys.stdin.isatty():
-                print("rsyncy is an rsync wrapper with a progress bar.")
+                print("github.com/laktak/rsyncy")
+                print("Christian Zangl <laktak@cdak.net>")
+                print()
+                print("Usage: rsyncy SAME_OPTIONS_AS_RSYNC")
                 print(
-                    "Please specify your rsync options as you normally would but use rsyncy instead of rsync."
+                    "rsyncy is an rsync wrapper with a progress bar. All parameters will be passed to `rsync`."
                 )
             else:
                 # receive pipe from rsync

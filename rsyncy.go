@@ -38,15 +38,15 @@ type Rstyle struct {
 }
 
 type Rsyncy struct {
-	style       Rstyle
-	trans       string
-	percent     float64
-	speed       string
-	xfr         string
-	chk         string
-	chkFinished bool
-	start       time.Time
-	statusOnly  bool
+	style      Rstyle
+	trans      string
+	percent    float64
+	speed      string
+	xfr        string
+	files      string
+	scanDone   bool
+	start      time.Time
+	statusOnly bool
 }
 
 func NewRsyncy(rstyle Rstyle) *Rsyncy {
@@ -81,18 +81,23 @@ func (r *Rsyncy) parseRsyncStat(line string) bool {
 
 			match := reChk.FindStringSubmatch(data[5])
 			if len(match) == 4 {
-				r.chkFinished = match[1] == "to"
+				r.scanDone = match[1] == "to"
 				todo, errTodo := strconv.Atoi(match[2])
 				total, errTotal := strconv.Atoi(match[3])
 				if errTodo == nil && errTotal == nil && total > 0 {
 					done := total - todo
-					chkPercent := float64(done) * 100.0 / float64(total)
-					r.chk = fmt.Sprintf("%2.0f%% (%d)", chkPercent, total)
+					percent := float64(done) * 100.0 / float64(total)
+					r.scanDone = match[1] == "to"
+					if r.scanDone {
+						r.files = fmt.Sprintf("%.0f%% of %d files", percent, total)
+					} else {
+						r.files = fmt.Sprintf("%.0f%% (%d..) ", percent, total)
+					}
 				} else {
-					r.chk = ""
+					r.files = ""
 				}
 			} else {
-				r.chk = ""
+				r.files = ""
 			}
 		}
 		return true
@@ -117,7 +122,7 @@ func (r *Rsyncy) drawStat() {
 	elapsedStr := formatDuration(elapsed)
 
 	spin := ""
-	if !r.chkFinished && len(r.style.spinner) > 0 {
+	if !r.scanDone && len(r.style.spinner) > 0 {
 		spin = r.style.spinner[int(elapsed.Seconds())%len(r.style.spinner)]
 	}
 
@@ -128,7 +133,7 @@ func (r *Rsyncy) drawStat() {
 		fmt.Sprintf("%14s", r.speed),
 		elapsedStr,
 		r.xfr,
-		fmt.Sprintf("scan %s\xff", r.chk),
+		r.files + "\xff",
 	}
 
 	// reduce to fit
@@ -335,8 +340,8 @@ func main() {
 			fmt.Println("Christian Zangl <laktak@cdak.net>")
 			fmt.Println(appVersion)
 			fmt.Println()
-			fmt.Println("rsyncy is an rsync wrapper with a progress bar.")
-			fmt.Println("Please specify your rsync options as you normally would but use rsyncy instead of rsync.")
+			fmt.Println("Usage: rsyncy SAME_OPTIONS_AS_RSYNC")
+			fmt.Println("rsyncy is an rsync wrapper with a progress bar. All parameters will be passed to `rsync`.")
 		} else {
 			// receive pipe from rsync
 			rsyncy.readOutput(os.Stdin)

@@ -3,35 +3,57 @@
 
 A status/progress bar for [rsync](https://github.com/WayneD/rsync).
 
-![gif of rsyncy -a a/ b](https://raw.githubusercontent.com/laktak/rsyncy/readme/readme/demo-y.gif "rsyncy -a a/ b")
+![gif of rsyncy -a a/ b](https://raw.githubusercontent.com/wiki/laktak/rsyncy/readme/demo.gif "rsyncy -a a/ b")
 
 
 - [Status Bar](#status-bar)
-- [Installation](#installation)
 - [Usage](#usage)
-- [Known Issues when using ssh behind rsync](#known-issues-when-using-ssh-behind-rsync)
-- [lf support](#lf-support)
+- [Installation](#installation)
+- [Known Issue](#known-issue-when-using-ssh-behind-rsync)
+- [lf (TUI) support](#lf-tui-support)
 - [Development](#development)
 
 
 ## Status Bar
 
 ```
-[########################::::::]  80% |      19.17G |      86.65MB/s | 0:03:18 | #306 | scan 46% (2410)\
+[#######:::::::::::::::::::::::]  25% |     100.60M |     205.13kB/s | 0:00:22 | #3019 | 69% (4422..)
+[########################::::::]  82% |     367.57M |     508.23kB/s | 0:00:44 | #4234 | 85% of 5055 files
 ```
 
 The status bar shows the following information:
 
 Description | Sample
 --- | ---
-Progress bar with percentage of the total transfer | `[########################::::::]  80%`
-Bytes transferred | `19.17G`
-Transfer speed | `86.65MB/s`
-Elapsed time since starting rsync | `0:03:18`
-Number of files transferred | `#306`
-Files to scan/check<br>- percentage completed<br>- (number of files)<br>- spinner | `scan 46% (2410)\`
+(1) Progress bar with percentage of the total transfer | `[########################::::::]  80%`
+(2) Bytes transferred | `19.17G`
+(3) Transfer speed | `86.65MB/s`
+(4) Elapsed time since starting rsync | `0:03:18`
+(5) Number of files transferred | `#306`
+(6) Files<br>- percentage completed<br>- `*` spinner and `..` are shown while rsync is still scanning | `69% (4422..) *`<br>`85% of 5055 files`
 
-The spinner indicates that rsync is still checking if files need to be updated. Until this process completes the progress bar may decrease as new files are found.
+The spinner indicates that rsync is still looking for files. Until this process completes the progress bar may decrease as new files are found.
+
+
+## Usage
+
+`rsyncy` is a wrapper around `rsync`.
+
+- You run `rsyncy` with the same arguments as it will pass them to `rsync` internally.
+- You do not need to specify any `--info` arguments as rsyncy will add them automatically (`--info=progress2 -hv`).
+
+```
+# simple example
+$ rsyncy -a FROM/ TO
+```
+
+Alternatively you can pipe the output from rsync to rsyncy (in which case you need to specify `--info=progress2 -hv` yourself).
+
+```
+$ rsync -a --info=progress2 -hv FROM/ TO | rsyncy
+```
+
+At the moment `rsyncy` itself has only one option, you can turn off colors via the `NO_COLOR=1` environment variable.
 
 
 ## Installation
@@ -76,26 +98,6 @@ $ ls -l rsyncy/rsyncy
 ```
 
 
-## Usage
-
-`rsyncy` is a wrapper around `rsync`.
-
-- You run `rsyncy` with the same arguments as it will pass them to `rsync` internally.
-- Do not specify any `--info` arguments, rsyncy will automatically add `--info=progress2` and `-hv` internally.
-
-```
-# simple example
-$ rsyncy -a FROM/ TO
-```
-
-Alternatively you can pipe the output from rsync to rsyncy (in which case you need to specify `--info=progress2 -hv` yourself).
-
-```
-$ rsync -a --info=progress2 -hv FROM/ TO | rsyncy
-```
-
-At the moment `rsyncy` itself has only one option, you can turn off colors via the `NO_COLOR=1` environment variable.
-
 
 ## Known Issue when using ssh behind rsync
 
@@ -104,7 +106,7 @@ ssh uses direct TTY access to make sure that the input is indeed issued by an in
 Workaround: connect once to your server via ssh to add it to the known_hosts file.
 
 
-## lf support
+## lf (TUI) support
 
 `rsyncy-stat` can be used to view only the status output on [lf](https://github.com/gokcehan/lf) (or similar terminal file managers).
 
