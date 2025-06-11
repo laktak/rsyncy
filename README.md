@@ -73,7 +73,7 @@ $ rsyncy/scripts/build
 
 # binary can be found here
 $ ls -l rsyncy/rsyncy
-`
+```
 
 
 ## Usage
