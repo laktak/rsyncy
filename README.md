@@ -58,6 +58,9 @@ At the moment `rsyncy` itself has only one option, you can turn off colors via t
 
 ## Installation
 
+rsync is implemented in Go. For legacy reasons there is also a Python implementation that is still maintained. Both versions should behave exactly the same.
+
+
 ### Download Binaries
 
 You can download the official rsyncy binaries for different OS/Platforms from the GitHub releases page. After downloading place it in your `PATH`.
