@@ -61,11 +61,18 @@ At the moment `rsyncy` itself has only one option, you can turn off colors via t
 rsync is implemented in Go. For legacy reasons there is also a Python implementation that is still maintained. Both versions should behave exactly the same.
 
 
-### Download Binaries
+### Install/Update Binaries
 
-You can download the official rsyncy binaries for different OS/Platforms from the GitHub releases page. After downloading place it in your `PATH`.
+```
+curl https://laktak.github.io/rsyncy.sh|bash
+```
 
-- [github.com/laktak/rsyncy/releases](https://github.com/laktak/rsyncy/releases)
+This will download the rsyncy binary for your OS/Platform from the GitHub releases page and install it to `~/.local/bin`. You will get a message if that's not in your `PATH`.
+
+You probably want to download or view the [setup script](https://laktak.github.io/rsyncy.sh) before piping it to bash.
+
+If you prefer you can download a binary from [github.com/laktak/rsyncy/releases](https://github.com/laktak/rsyncy/releases) manually and place it in your `PATH`.
+
 
 ### Install via Homebrew (macOS and Linux)
 
