@@ -71,8 +71,10 @@ func (r *Rsyncy) parseRsyncStat(line string) bool {
 
 		if len(data) == 6 {
 			xfr := strings.Split(strings.TrimSuffix(data[4], ","), "#")
+			xfrNum := 0
 			if len(xfr) == 2 {
 				r.xfr = "#" + xfr[1]
+				xfrNum, _ = strconv.Atoi(xfr[1])
 			}
 
 			match := reChk.FindStringSubmatch(data[5])
@@ -81,12 +83,20 @@ func (r *Rsyncy) parseRsyncStat(line string) bool {
 				todo, errTodo := strconv.Atoi(match[2])
 				total, errTotal := strconv.Atoi(match[3])
 				if errTodo == nil && errTotal == nil && total > 0 {
-					done := total - todo
-					percent := float64(done) * 100.0 / float64(total)
 					r.scanDone = match[1] == "to"
 					if r.scanDone {
-						r.files = fmt.Sprintf("%.0f%% of %d files", percent, total)
+						// to-chk=N/M: M includes directories, so use xfr+todo
+						// to get the actual file count instead of total items
+						totalFiles := xfrNum + todo
+						if totalFiles > 0 {
+							percent := float64(xfrNum) * 100.0 / float64(totalFiles)
+							r.files = fmt.Sprintf("%.0f%% of %d files", percent, totalFiles)
+						} else {
+							r.files = ""
+						}
 					} else {
+						done := total - todo
+						percent := float64(done) * 100.0 / float64(total)
 						r.files = fmt.Sprintf("%.0f%% (%d..) ", percent, total)
 					}
 				} else {
