@@ -122,6 +122,22 @@ func formatDuration(d time.Duration) string {
 	return fmt.Sprintf("%d:%02d:%02d", int(d.Hours()), int(d.Minutes())%60, int(d.Seconds())%60)
 }
 
+func formatETA(remaining time.Duration, scanDone bool) string {
+	wallClock := time.Now().Add(remaining)
+	days := int(remaining.Hours()) / 24
+	var wallStr string
+	if days > 0 {
+		wallStr = fmt.Sprintf("+%dd %s", days, wallClock.Format("15:04"))
+	} else {
+		wallStr = wallClock.Format("15:04")
+	}
+	mark := ""
+	if !scanDone {
+		mark = "*"
+	}
+	return fmt.Sprintf("ETA %s (%s)%s", wallStr, formatDuration(remaining), mark)
+}
+
 func (r *Rsyncy) drawStat() {
 	cols := lterm.GetWidth()
 	elapsed := time.Since(r.start)
@@ -132,12 +148,19 @@ func (r *Rsyncy) drawStat() {
 		spin = r.style.spinner[int(elapsed.Seconds())%len(r.style.spinner)]
 	}
 
+	etaStr := "ETA calculating"
+	if r.percent > 0 {
+		remaining := time.Duration(float64(elapsed)/r.percent) - elapsed
+		etaStr = formatETA(remaining, r.scanDone)
+	}
+
 	// define status (excl. bar)
 	// use \xff as a placeholder for the spinner
 	parts := []string{
 		fmt.Sprintf("%11s", r.trans),
 		fmt.Sprintf("%14s", r.speed),
 		elapsedStr,
+		etaStr,
 		r.xfr,
 		r.files + "\xff",
 	}
