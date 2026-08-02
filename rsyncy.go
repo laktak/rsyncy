@@ -71,8 +71,10 @@ func (r *Rsyncy) parseRsyncStat(line string) bool {
 
 		if len(data) == 6 {
 			xfr := strings.Split(strings.TrimSuffix(data[4], ","), "#")
+			xfrNum := 0
 			if len(xfr) == 2 {
 				r.xfr = "#" + xfr[1]
+				xfrNum, _ = strconv.Atoi(xfr[1])
 			}
 
 			match := reChk.FindStringSubmatch(data[5])
@@ -81,12 +83,20 @@ func (r *Rsyncy) parseRsyncStat(line string) bool {
 				todo, errTodo := strconv.Atoi(match[2])
 				total, errTotal := strconv.Atoi(match[3])
 				if errTodo == nil && errTotal == nil && total > 0 {
-					done := total - todo
-					percent := float64(done) * 100.0 / float64(total)
 					r.scanDone = match[1] == "to"
 					if r.scanDone {
-						r.files = fmt.Sprintf("%.0f%% of %d files", percent, total)
+						// to-chk=N/M: M includes directories, so use xfr+todo
+						// to get the actual file count instead of total items
+						totalFiles := xfrNum + todo
+						if totalFiles > 0 {
+							percent := float64(xfrNum) * 100.0 / float64(totalFiles)
+							r.files = fmt.Sprintf("%.0f%% of %d files", percent, totalFiles)
+						} else {
+							r.files = ""
+						}
 					} else {
+						done := total - todo
+						percent := float64(done) * 100.0 / float64(total)
 						r.files = fmt.Sprintf("%.0f%% (%d..) ", percent, total)
 					}
 				} else {
@@ -112,6 +122,22 @@ func formatDuration(d time.Duration) string {
 	return fmt.Sprintf("%d:%02d:%02d", int(d.Hours()), int(d.Minutes())%60, int(d.Seconds())%60)
 }
 
+func formatETA(remaining time.Duration, scanDone bool) string {
+	wallClock := time.Now().Add(remaining)
+	days := int(remaining.Hours()) / 24
+	var wallStr string
+	if days > 0 {
+		wallStr = fmt.Sprintf("+%dd %s", days, wallClock.Format("15:04"))
+	} else {
+		wallStr = wallClock.Format("15:04")
+	}
+	mark := ""
+	if !scanDone {
+		mark = "*"
+	}
+	return fmt.Sprintf("ETA %s (%s)%s", wallStr, formatDuration(remaining), mark)
+}
+
 func (r *Rsyncy) drawStat() {
 	cols := lterm.GetWidth()
 	elapsed := time.Since(r.start)
@@ -122,12 +148,19 @@ func (r *Rsyncy) drawStat() {
 		spin = r.style.spinner[int(elapsed.Seconds())%len(r.style.spinner)]
 	}
 
+	etaStr := "ETA calculating"
+	if r.percent > 0 {
+		remaining := time.Duration(float64(elapsed)/r.percent) - elapsed
+		etaStr = formatETA(remaining, r.scanDone)
+	}
+
 	// define status (excl. bar)
 	// use \xff as a placeholder for the spinner
 	parts := []string{
 		fmt.Sprintf("%11s", r.trans),
 		fmt.Sprintf("%14s", r.speed),
 		elapsedStr,
+		etaStr,
 		r.xfr,
 		r.files + "\xff",
 	}
